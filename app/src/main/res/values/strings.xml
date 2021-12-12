@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">Scrunch</string>
+    <string name="service_description">This service listens to fold state changes and plays your chosen sounds in response.</string>
+    <string name="service_label">Fold signaling service</string>
+    <string name="notif_channel_label">Fold signaling service notification</string>
+    <string name="notif_channel_description">Used to post the persistent notifications that allow the service to keep running in the background</string>
+    <string name="notif_title">Ready to play your sounds</string>
+    <string name="notif_content">Sorry, we need to keep this open or else Android gets mad at us. You can set it to a lower priority in notification settings if it bothers you.</string>
+    <string name="btn_fold_sound_text">Fold sound</string>
+    <string name="btn_unfold_sound_text">Unfold sound</string>
+    <string name="btn_stop">Stop</string>
+    <string name="swt_start_service_title">Start service</string>
+    <string name="permission_tutorial_title">Permission required</string>
+    <string name="permission_tutorial_msg">This app needs the READ_LOGS permission to function. Please open an ADB shell and grant this permission using the following command:
+        <![CDATA[<br/><br/><font face="monospace">pm grant com.denytheflowerpot.scrunch android.permission.READ_LOGS</font><br/><br/>]]>
+        Then exit the app from the Recents menu and restart it. No information of any kind will be used from the system logs outside of the folding state of the display.</string>
+    <string name="volume_label">Volume</string>
+</resources>
