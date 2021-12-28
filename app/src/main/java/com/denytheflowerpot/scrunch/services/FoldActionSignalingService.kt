@@ -5,42 +5,56 @@ import android.content.Intent
 import android.os.IBinder
 import android.util.Log
 import com.denytheflowerpot.scrunch.ScrunchApplication
+import com.denytheflowerpot.scrunch.helpers.folding.FoldDetectionStrategy
 import kotlinx.coroutines.*
-import java.lang.Exception
 
 class FoldActionSignalingService : Service() {
-    private val scope = CoroutineScope(Job() + Dispatchers.IO)
 
-    private val foldParamPrefix = "setDeviceFolded"
+    //necessary in order to stop processing folding actions
+    class DummyStopServiceException : Exception()
+
     private val notificationId = 4653
 
     private var logcatJob: Job? = null
     private var currentFoldState: Boolean? = null
 
+    private lateinit var foldDetectionStrategy: FoldDetectionStrategy
+    private lateinit var scope: CoroutineScope
+
     private suspend fun announceFoldAction() = withContext(Dispatchers.IO) {
         Runtime.getRuntime().exec("logcat -c")
-        Runtime.getRuntime().exec("logcat DisplayFoldController:V *:S -e $foldParamPrefix")
+        Runtime.getRuntime()
+            .exec("logcat ${foldDetectionStrategy.logcatTraceTag}:V *:S -e ${foldDetectionStrategy.logcatTracePrefix}")
             .inputStream
             .bufferedReader()
             .useLines { lines ->
-                lines.forEach { line ->
-                        val processedLine = line.split(" ").firstOrNull { it.startsWith("Folded=") }?.removePrefix("Folded=")
-                        if (processedLine != line) {
-                            val folded = processedLine.toBoolean()
+                try {
+                    lines.forEach { line ->
+                        if (!this.isActive) {
+                            throw DummyStopServiceException()
+                        }
+
+                        val folded = foldDetectionStrategy.processLogcatTrace(line, currentFoldState)
+                        if (folded != null) {
                             Log.d("Scrunch", "Fold status is $folded")
-                                if (currentFoldState == null) {
+                            if (currentFoldState == null) {
+                                currentFoldState = folded
+                            } else {
+                                if (folded != currentFoldState) {
+                                    val soundPlaybackManager =
+                                        ScrunchApplication.instance.soundPlaybackManager
+                                    if (folded) soundPlaybackManager.playFoldSound() else soundPlaybackManager.playUnfoldSound()
                                     currentFoldState = folded
-                                } else {
-                                    if (folded != currentFoldState) {
-                                        val soundPlaybackManager =
-                                            ScrunchApplication.instance.soundPlaybackManager
-                                        if (folded) soundPlaybackManager.playFoldSound() else soundPlaybackManager.playUnfoldSound()
-                                        currentFoldState = folded
-                                    }
                                 }
+                            }
                         } else {
                             Log.d("Scrunch", "Invalid line: $line")
                         }
+                    }
+                } catch (e: Exception) {
+                    if (e !is DummyStopServiceException) {
+                        Log.d("Scrunch", "Error: $e")
+                    }
                 }
             }
     }
@@ -52,10 +66,26 @@ class FoldActionSignalingService : Service() {
         }
 
         if (logcatJob == null) {
-            logcatJob = scope.launch { announceFoldAction() }
+            val strategy = FoldDetectionStrategy.instanceForThisDevice
+            return if (strategy != null) {
+                foldDetectionStrategy = strategy
+                scope = CoroutineScope(Job() + Dispatchers.IO)
+                logcatJob = scope.launch { announceFoldAction() }
+                startForeground(
+                    notificationId,
+                    ScrunchApplication.instance.notificationManager.generateNotification(
+                        stopServiceAction
+                    )
+                )
+                START_STICKY
+            } else {
+                Log.d("Scrunch", "Could not detect model")
+                START_NOT_STICKY
+            }
+        } else {
+            Log.d("Scrunch", "Service already running")
+            return START_NOT_STICKY
         }
-        startForeground(notificationId, ScrunchApplication.instance.notificationManager.generateNotification(stopServiceAction))
-        return START_STICKY
     }
 
     override fun onBind(intent: Intent?): IBinder? {
@@ -64,6 +94,7 @@ class FoldActionSignalingService : Service() {
 
     override fun onDestroy() {
         scope.cancel()
+        logcatJob?.cancel("Normal stop")
         logcatJob = null
     }
 

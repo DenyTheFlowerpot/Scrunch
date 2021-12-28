@@ -29,7 +29,7 @@ class NotificationManager(private val context: Context) {
 
     fun generateNotification(stopAction: String): Notification? {
         (context as? ScrunchApplication)?.getServiceIntent(false)?.let {
-            val informMainActivityIntent = Intent(context, MainActivity::class.java).putExtra(FoldActionSignalingService.stopServiceAction, true)
+            val informMainActivityIntent = Intent(context, MainActivity::class.java).putExtra(stopAction, true)
             val stopServicePendingIntent = PendingIntent.getActivity(context, 0, informMainActivityIntent, FLAG_IMMUTABLE or FLAG_UPDATE_CURRENT)
             return NotificationCompat.Builder(context, channel.id)
                 .setContentTitle(context.getText(R.string.notif_title))
