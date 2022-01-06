@@ -22,9 +22,8 @@ interface FoldDetectionStrategy {
                     "bloomq", //Z Flip
                     "bloomxq", //Z Flip 5G
                     "b2q" //Z Flip3
-                    -> GalaxyFoldDetectionStrategy()
+                    -> GalaxyFoldDetectionStrategy(Build.VERSION.SDK_INT)
                     "duo", //Duo 1
-                    "ssi_sdk_x86_64" //emulator
                     -> SurfaceDuoDetectionStrategy()
                     else -> null
                 }
@@ -32,28 +31,31 @@ interface FoldDetectionStrategy {
     }
 }
 
-class GalaxyFoldDetectionStrategy: FoldDetectionStrategy {
+class GalaxyFoldDetectionStrategy(val sdk: Int): FoldDetectionStrategy {
     override val logcatTraceTag: String
-        get() = "DisplayFoldController"
+        get() = if (sdk >= 31) "WindowManagerServiceExt" else "DisplayFoldController"
     override val logcatTracePrefix: String
-        get() = "setDeviceFolded"
+        get() = if (sdk >= 31) "onStateChanged" else "setDeviceFolded"
     override val processLogcatTrace: (String, Boolean?) -> Boolean?
         get() = { line, _ ->
-            val processedLine = line.split(" ").firstOrNull { it.startsWith("Folded=") }?.removePrefix("Folded=")
-            if (processedLine != line) { processedLine.toBoolean() } else null
+            val toRemove = if (sdk >= 31) "isFolded=" else "Folded="
+            val processedLine = line.split(" ").firstOrNull { it.startsWith(toRemove) }?.removePrefix(toRemove)
+            if (processedLine != line) {
+                processedLine.toBoolean()
+            } else null
         }
 }
 
 class SurfaceDuoDetectionStrategy: FoldDetectionStrategy {
     override val logcatTraceTag: String
-        get() = "SurfaceShell.PF"
+        get() = "PostureMonitor"
     override val logcatTracePrefix: String
-        get() = "FirePosture:Posture3D"
+        get() = "sendPostureIntent"
     override val processLogcatTrace: (String, Boolean?) -> Boolean?
         get() = { line, previous ->
-            val processedLine = line.split(", ").firstOrNull { it.contains("posture=") }
+            val processedLine = line.split(" ").firstOrNull { it.contains("posture=") }
             if (processedLine != line) {
-                val folded = processedLine?.endsWith("Closed") == true
+                val folded = processedLine?.contains("Closed") == true
                 if (folded) { true } else {
                     val isPeeking = processedLine?.contains("Peek") == true
                     //if closed, consider peeking to be still closed
