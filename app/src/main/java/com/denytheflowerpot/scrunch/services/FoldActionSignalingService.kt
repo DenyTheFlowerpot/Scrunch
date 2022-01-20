@@ -23,7 +23,7 @@ class FoldActionSignalingService : Service() {
             return START_NOT_STICKY
         }
 
-        return START_NOT_STICKY
+        return START_STICKY
     }
 
     override fun onCreate() {
