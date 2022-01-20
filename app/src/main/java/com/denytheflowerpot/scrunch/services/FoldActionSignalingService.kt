@@ -1,14 +1,10 @@
 package com.denytheflowerpot.scrunch.services
 
 import android.app.Service
-import android.content.Context
 import android.content.Intent
-import android.hardware.devicestate.DeviceStateManager
 import android.os.IBinder
-import android.util.Log
 import com.denytheflowerpot.scrunch.ScrunchApplication
 import com.denytheflowerpot.scrunch.helpers.folding.FoldDetectionStrategy
-import kotlinx.coroutines.*
 
 class FoldActionSignalingService : Service() {
     //necessary in order to stop processing folding actions
