@@ -1,8 +1,6 @@
 package com.denytheflowerpot.scrunch.viewmodels
 
-import android.Manifest
 import android.app.Application
-import android.content.pm.PackageManager
 import android.net.Uri
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.AndroidViewModel
@@ -11,6 +9,7 @@ import androidx.lifecycle.MutableLiveData
 import com.denytheflowerpot.scrunch.ScrunchApplication
 import com.denytheflowerpot.scrunch.managers.SettingsManager
 import com.denytheflowerpot.scrunch.managers.SoundPlaybackManager
+import com.denytheflowerpot.scrunch.util.PermissionUtils
 
 class MainViewModel(app: Application): AndroidViewModel(app) {
     private val foldSoundURL: MutableLiveData<Uri?> by lazy {
@@ -26,7 +25,7 @@ class MainViewModel(app: Application): AndroidViewModel(app) {
         MutableLiveData<Float>(settingsManager.volume)
     }
 
-    val showPermissionTutorial = app.checkSelfPermission(Manifest.permission.READ_LOGS) != PackageManager.PERMISSION_GRANTED
+    val showPermissionTutorial = PermissionUtils.needsToGrantReadLogs(app)
 
     val foldSoundName = MediatorLiveData<String>().apply {
         addSource(foldSoundURL) {
