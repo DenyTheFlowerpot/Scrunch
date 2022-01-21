@@ -2,12 +2,14 @@ package com.denytheflowerpot.scrunch.helpers.folding
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.hardware.devicestate.DeviceStateManager
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import com.denytheflowerpot.scrunch.services.FoldActionSignalingService
 import kotlinx.coroutines.*
+import java.lang.reflect.InvocationHandler
+import java.lang.reflect.Proxy
+import java.util.concurrent.Executor
 
 interface FoldDetectionStrategy {
     fun create(context: Context, callback: (Int) -> Unit)
@@ -45,33 +47,49 @@ interface FoldDetectionStrategy {
 
 @RequiresApi(Build.VERSION_CODES.S)
 class Android12DetectionStrategy : FoldDetectionStrategy {
-    private var stateCallback: DeviceStateManager.DeviceStateCallback? = null
+    companion object {
+        @SuppressLint("PrivateApi")
+        private val dsmClass = Class.forName("android.hardware.devicestate.DeviceStateManager")
+        @SuppressLint("PrivateApi")
+        private val callbackClass = Class.forName("android.hardware.devicestate.DeviceStateManager\$DeviceStateCallback")
+    }
+
+    private var stateCallback: Any? = null
 
     override fun create(context: Context, callback: (Int) -> Unit) {
-        var array = context.resources.getStringArray(com.android.internal.R.array.config_device_state_postures)
+        val array = context.resources.getStringArray(
+            context.resources.getIdentifier("config_device_state_postures", "array", "android")
+        )
         val stateMapping = hashMapOf<Int, Int>()
-
-        if (array.isNullOrEmpty()) {
-            array = context.resources.getStringArray(
-                context.resources.getIdentifier("config_device_state_postures", "array", "android")
-            )
-        }
 
         stateMapping.putAll(array.map { it.split(":").run { this[0].toInt() to this[1].toInt() } })
 
-        stateCallback = DeviceStateManager.DeviceStateCallback { state ->
-            callback(stateMapping[state] ?: state)
+        val handler = InvocationHandler { _, method, args ->
+            when (method.name) {
+                "onStateChanged" -> {
+                    val state = args[0].toString().toInt()
+                    callback(stateMapping[state] ?: state)
+                }
+            }
         }
 
-        dsm(context).registerCallback(context.mainExecutor, stateCallback)
+        stateCallback = Proxy.newProxyInstance(
+            callbackClass.classLoader,
+            arrayOf(callbackClass),
+            handler
+        )
+
+        dsmClass.getMethod("registerCallback", Executor::class.java, callbackClass)
+            .invoke(dsm(context), context.mainExecutor, stateCallback)
     }
 
     override fun destroy(context: Context) {
-        dsm(context).unregisterCallback(stateCallback)
+        dsmClass.getMethod("unregisterCallback", callbackClass)
+            .invoke(dsm(context), stateCallback)
     }
 
     @SuppressLint("WrongConstant")
-    private fun dsm(context: Context) = context.getSystemService(Context.DEVICE_STATE_SERVICE) as DeviceStateManager
+    private fun dsm(context: Context) = context.getSystemService("device_state" /* Context.DEVICE_STATE_SERVICE */)
 }
 
 class GalaxyFoldDetectionStrategy(val sdk: Int) : LogcatDetectionStrategy() {
