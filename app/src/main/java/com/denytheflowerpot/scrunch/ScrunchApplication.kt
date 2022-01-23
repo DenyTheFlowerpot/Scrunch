@@ -8,6 +8,8 @@ import com.denytheflowerpot.scrunch.managers.NotificationManager
 import com.denytheflowerpot.scrunch.managers.SettingsManager
 import com.denytheflowerpot.scrunch.managers.SoundPlaybackManager
 import com.denytheflowerpot.scrunch.services.FoldActionSignalingService
+import com.denytheflowerpot.scrunch.util.PermissionUtils
+import org.lsposed.hiddenapibypass.HiddenApiBypass
 
 class ScrunchApplication: Application() {
     val settingsManager: SettingsManager by lazy {
@@ -20,13 +22,16 @@ class ScrunchApplication: Application() {
 
     override fun onCreate() {
         super.onCreate()
+
+        HiddenApiBypass.addHiddenApiExemptions("")
+
         instance = this
         soundPlaybackManager.loadPreviousSounds()
         startServiceIfNeeded()
     }
 
     fun startServiceIfNeeded() {
-        if (settingsManager.serviceStarted && checkSelfPermission(Manifest.permission.READ_LOGS) == PackageManager.PERMISSION_GRANTED) {
+        if (settingsManager.serviceStarted && !PermissionUtils.needsToGrantReadLogs(this)) {
             startForegroundService(getServiceIntent(true))
         }
     }
