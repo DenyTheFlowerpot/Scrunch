@@ -15,13 +15,15 @@ interface FoldDetectionStrategy {
         val instanceForThisDevice: FoldDetectionStrategy?
             get() {
                 return when (Build.DEVICE) {
+                    "q4q", //Z Fold4
                     "q2q", //Z Fold3
                     "f2q", //Z Fold2
                     "winner", //Z Fold
                     "winnerx", //Z Fold 5G
                     "bloomq", //Z Flip
                     "bloomxq", //Z Flip 5G
-                    "b2q" //Z Flip3
+                    "b2q", //Z Flip3
+                    "b4q" //Z Flip4
                     -> GalaxyFoldDetectionStrategy(Build.VERSION.SDK_INT)
                     "duo", //Duo 1
                     -> SurfaceDuoDetectionStrategy()
@@ -35,12 +37,12 @@ class GalaxyFoldDetectionStrategy(val sdk: Int): FoldDetectionStrategy {
     override val logcatTraceTag: String
         get() = if (sdk >= 31) "WindowManagerServiceExt" else "DisplayFoldController"
     override val logcatTracePrefix: String
-        get() = if (sdk >= 31) "onStateChanged" else "setDeviceFolded"
+        get() = if (sdk >= 32) "onFoldChangedLocked" else if (sdk >= 31) "onStateChanged" else "setDeviceFolded"
     override val processLogcatTrace: (String, Boolean?) -> Boolean?
         get() = { line, _ ->
             val toRemove = if (sdk >= 31) "isFolded=" else "Folded="
             val processedLine = line.split(" ").firstOrNull { it.startsWith(toRemove) }?.removePrefix(toRemove)
-            if (processedLine != line) {
+            if (processedLine != null && processedLine != line) {
                 processedLine.toBoolean()
             } else null
         }
