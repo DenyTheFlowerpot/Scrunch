@@ -12,7 +12,7 @@ import com.denytheflowerpot.scrunch.ScrunchApplication
 import com.denytheflowerpot.scrunch.managers.SettingsManager
 import com.denytheflowerpot.scrunch.managers.SoundPlaybackManager
 
-class MainViewModel(app: Application): AndroidViewModel(app) {
+class MainViewModel(app: Application) : AndroidViewModel(app) {
     private val foldSoundURL: MutableLiveData<Uri?> by lazy {
         MutableLiveData<Uri?>(Uri.parse(settingsManager.foldSoundURL))
     }
@@ -26,17 +26,20 @@ class MainViewModel(app: Application): AndroidViewModel(app) {
         MutableLiveData<Float>(settingsManager.volume)
     }
 
-    val showPermissionTutorial = app.checkSelfPermission(Manifest.permission.READ_LOGS) != PackageManager.PERMISSION_GRANTED
+    val showPermissionTutorial =
+        app.checkSelfPermission(Manifest.permission.READ_LOGS) != PackageManager.PERMISSION_GRANTED
 
     val foldSoundName = MediatorLiveData<String>().apply {
         addSource(foldSoundURL) {
-            this.value = if (it != null) DocumentFile.fromSingleUri(getApplication(), it)?.name else ""
+            this.value =
+                if (it != null) DocumentFile.fromSingleUri(getApplication(), it)?.name else ""
         }
     }
 
     val unfoldSoundName = MediatorLiveData<String>().apply {
         addSource(unfoldSoundURL) {
-            this.value = if (it != null) DocumentFile.fromSingleUri(getApplication(), it)?.name else ""
+            this.value =
+                if (it != null) DocumentFile.fromSingleUri(getApplication(), it)?.name else ""
         }
     }
 

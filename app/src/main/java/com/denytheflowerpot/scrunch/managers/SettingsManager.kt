@@ -3,19 +3,36 @@ package com.denytheflowerpot.scrunch.managers
 import android.content.Context
 import android.content.SharedPreferences
 import com.denytheflowerpot.scrunch.ScrunchApplication
+import com.denytheflowerpot.scrunch.helpers.Constants
 
 class SettingsManager(private val context: Context) {
     private class Keys {
         companion object {
-            public val UnfoldSoundURL = "unfoldSoundURL"
-            public val FoldSoundURL = "foldSoundURL"
-            public val ServiceStarted = "serviceStarted"
-            public val Volume = "volume"
+            const val UnfoldSoundURL = "unfoldSoundURL"
+            const val FoldSoundURL = "foldSoundURL"
+            const val ServiceStarted = "serviceStarted"
+            const val Volume = "volume"
+            const val PlayOverAudio = "playOverAudio"
+            const val StreamType = "streamType"
         }
     }
-    val prefs: SharedPreferences by lazy {
-        context.getSharedPreferences("${context.packageName}.PREFS", Context.MODE_PRIVATE)
+
+    private val prefs: SharedPreferences by lazy {
+        context.getSharedPreferences(Constants.SharedPreferencesFile, Context.MODE_PRIVATE)
     }
+
+    private val soundPlaybackManager: SoundPlaybackManager by lazy {
+        ScrunchApplication.instance.soundPlaybackManager
+    }
+
+    init {
+        prefs.registerOnSharedPreferenceChangeListener { _, key ->
+            if (key == Keys.StreamType) {
+                soundPlaybackManager.initializeSoundPool()
+            }
+        }
+    }
+
     var unfoldSoundURL: String
         get() = prefs.getString(Keys.UnfoldSoundURL, "") ?: ""
         set(value) {
@@ -39,4 +56,13 @@ class SettingsManager(private val context: Context) {
         set(value) {
             prefs.edit().putFloat(Keys.Volume, value).apply()
         }
+
+    //from AdvancedSettingsFragment
+    val playOverAudio: Boolean
+        get() = prefs.getBoolean(Keys.PlayOverAudio, true)
+
+    val streamType: SoundPlaybackManager.StreamType
+        get() = SoundPlaybackManager.StreamType.valueOf(
+            prefs.getString(Keys.StreamType, "system") ?: "system"
+        )
 }

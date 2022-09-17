@@ -9,19 +9,20 @@ import com.denytheflowerpot.scrunch.managers.SettingsManager
 import com.denytheflowerpot.scrunch.managers.SoundPlaybackManager
 import com.denytheflowerpot.scrunch.services.FoldActionSignalingService
 
-class ScrunchApplication: Application() {
+class ScrunchApplication : Application() {
     val settingsManager: SettingsManager by lazy {
         SettingsManager(applicationContext)
     }
     val notificationManager: NotificationManager by lazy {
         NotificationManager(applicationContext)
     }
-    val soundPlaybackManager: SoundPlaybackManager by lazy { SoundPlaybackManager(applicationContext) }
+    val soundPlaybackManager: SoundPlaybackManager by lazy {
+        SoundPlaybackManager(applicationContext)
+    }
 
     override fun onCreate() {
         super.onCreate()
         instance = this
-        soundPlaybackManager.loadPreviousSounds()
         startServiceIfNeeded()
     }
 

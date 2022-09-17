@@ -15,4 +15,14 @@
         <![CDATA[<br/><br/><font face="monospace">pm grant com.denytheflowerpot.scrunch android.permission.READ_LOGS</font><br/><br/>]]>
         Then exit the app from the Recents menu and restart it. No information of any kind will be used from the system logs outside of the folding state of the display.</string>
     <string name="volume_label">Volume</string>
+    <string name="title_activity_settings">Advanced settings</string>
+    <string name="setting_play_sounds_over_music">Play sounds over audio</string>
+    <string name="setting_stream_type">Stream type</string>
+    <string name="setting_stream_type_desc">Will influence the behavior of other audio that the sounds play over, as well as the volume.　The default value is System, which should be appropriate for most users.</string>
+
+    <!-- Preference Titles -->
+
+    <!-- Messages Preferences -->
+
+    <!-- Sync Preferences -->
 </resources>

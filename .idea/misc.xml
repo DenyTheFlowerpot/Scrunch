@@ -5,8 +5,11 @@
       <map>
         <entry key="app/src/main/res/drawable/ic_launcher_foreground.xml" value="0.2056159420289855" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.33" />
+        <entry key="app/src/main/res/layout/activity_settings.xml" value="0.29257246376811596" />
         <entry key="app/src/main/res/layout/fragment_permissions_tutorial_dialog.xml" value="0.19157608695652173" />
+        <entry key="app/src/main/res/layout/settings_activity.xml" value="0.29257246376811596" />
         <entry key="app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.2056159420289855" />
+        <entry key="app/src/main/res/xml/root_preferences.xml" value="0.29257246376811596" />
       </map>
     </option>
   </component>

@@ -34,7 +34,8 @@ class FoldActionSignalingService : Service() {
                             throw DummyStopServiceException()
                         }
 
-                        val folded = foldDetectionStrategy.processLogcatTrace(line, currentFoldState)
+                        val folded =
+                            foldDetectionStrategy.processLogcatTrace(line, currentFoldState)
                         if (folded != null) {
                             Log.d("Scrunch", "Fold status is $folded")
                             if (currentFoldState == null) {

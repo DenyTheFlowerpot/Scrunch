@@ -5,7 +5,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.SeekBar
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.denytheflowerpot.scrunch.databinding.ActivityMainBinding
@@ -20,26 +19,28 @@ class MainActivity : AppCompatActivity() {
         ViewModelProvider(this).get(MainViewModel::class.java)
     }
     private lateinit var binding: ActivityMainBinding
-    private val foldSoundResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-        if (it.resultCode == Activity.RESULT_OK) {
-            val uri = it.data?.data
-            if (uri != null) {
-                val flag = Intent.FLAG_GRANT_READ_URI_PERMISSION
-                contentResolver.takePersistableUriPermission(uri, flag)
-                viewModel.setFoldSoundPath(uri)
+    private val foldSoundResultLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            if (it.resultCode == Activity.RESULT_OK) {
+                val uri = it.data?.data
+                if (uri != null) {
+                    val flag = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                    contentResolver.takePersistableUriPermission(uri, flag)
+                    viewModel.setFoldSoundPath(uri)
+                }
             }
         }
-    }
-    private val unfoldSoundResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-        if (it.resultCode == Activity.RESULT_OK) {
-            val uri = it.data?.data
-            if (uri != null) {
-                val flag = Intent.FLAG_GRANT_READ_URI_PERMISSION
-                contentResolver.takePersistableUriPermission(uri, flag)
-                viewModel.setUnfoldSoundPath(uri)
+    private val unfoldSoundResultLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            if (it.resultCode == Activity.RESULT_OK) {
+                val uri = it.data?.data
+                if (uri != null) {
+                    val flag = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                    contentResolver.takePersistableUriPermission(uri, flag)
+                    viewModel.setUnfoldSoundPath(uri)
+                }
             }
         }
-    }
 
     private val permissionTutorialDialogTag = "permissionTutorialDialog"
 
@@ -51,15 +52,19 @@ class MainActivity : AppCompatActivity() {
 
         binding.btnFoldSound.setOnClickListener { openPicker(PickerType.foldSound) }
         binding.btnUnfoldSound.setOnClickListener { openPicker(PickerType.unfoldSound) }
-        binding.swtStartService.setOnCheckedChangeListener { _, isChecked -> viewModel.setServiceStarted(isChecked) }
-        binding.volumeSeekBar.setOnSeekBarChangeListener (object: SeekBar.OnSeekBarChangeListener {
+        binding.swtStartService.setOnCheckedChangeListener { _, isChecked ->
+            viewModel.setServiceStarted(
+                isChecked
+            )
+        }
+        binding.volumeSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             var tentativeVolume = binding.volumeSeekBar.progress
 
             override fun onProgressChanged(bar: SeekBar, progress: Int, fromUser: Boolean) {
                 tentativeVolume = progress
             }
 
-            override fun onStartTrackingTouch(seekBar: SeekBar?) { }
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
                 viewModel.setVolume(tentativeVolume.toFloat() / 100)
             }
@@ -86,14 +91,21 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        if (intent != null && intent.getBooleanExtra(FoldActionSignalingService.stopServiceAction, false)) {
+        if (intent != null && intent.getBooleanExtra(
+                FoldActionSignalingService.stopServiceAction,
+                false
+            )
+        ) {
             binding.swtStartService.isChecked = false
         }
 
         if (viewModel.showPermissionTutorial) {
             binding.swtStartService.isEnabled = false
             if (supportFragmentManager.findFragmentByTag(permissionTutorialDialogTag) == null) {
-                PermissionTutorialDialogFragment().show(supportFragmentManager, permissionTutorialDialogTag)
+                PermissionTutorialDialogFragment().show(
+                    supportFragmentManager,
+                    permissionTutorialDialogTag
+                )
             }
         }
     }
@@ -103,6 +115,8 @@ class MainActivity : AppCompatActivity() {
             this.addCategory(Intent.CATEGORY_OPENABLE)
             this.type = "audio/*"
         }
-        if (type == PickerType.foldSound) foldSoundResultLauncher.launch(intent) else unfoldSoundResultLauncher.launch(intent)
+        if (type == PickerType.foldSound) foldSoundResultLauncher.launch(intent) else unfoldSoundResultLauncher.launch(
+            intent
+        )
     }
 }
