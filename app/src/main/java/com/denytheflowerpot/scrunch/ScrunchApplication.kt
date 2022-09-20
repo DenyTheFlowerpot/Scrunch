@@ -2,8 +2,11 @@ package com.denytheflowerpot.scrunch
 
 import android.Manifest
 import android.app.Application
+import android.app.Service
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.util.Log
+import com.denytheflowerpot.scrunch.helpers.folding.FoldDetectionStrategy
 import com.denytheflowerpot.scrunch.managers.NotificationManager
 import com.denytheflowerpot.scrunch.managers.SettingsManager
 import com.denytheflowerpot.scrunch.managers.SoundPlaybackManager
@@ -27,16 +30,12 @@ class ScrunchApplication: Application() {
 
     fun startServiceIfNeeded() {
         if (settingsManager.serviceStarted && checkSelfPermission(Manifest.permission.READ_LOGS) == PackageManager.PERMISSION_GRANTED) {
-            startForegroundService(getServiceIntent(true))
+            if (FoldDetectionStrategy.instanceForThisDevice == null) {
+                Log.d("Scrunch", "Could not detect model")
+            } else {
+                startForegroundService(FoldActionSignalingService.getServiceIntent(true))
+            }
         }
-    }
-
-    fun getServiceIntent(start: Boolean): Intent {
-        val i = Intent(this, FoldActionSignalingService::class.java)
-        if (!start) {
-            i.action = FoldActionSignalingService.stopServiceAction
-        }
-        return i
     }
 
     companion object {
