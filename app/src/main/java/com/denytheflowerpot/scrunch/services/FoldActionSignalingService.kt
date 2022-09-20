@@ -19,7 +19,7 @@ class FoldActionSignalingService : Service() {
     private var currentFoldState: Boolean? = null
 
     private lateinit var foldDetectionStrategy: FoldDetectionStrategy
-    private lateinit var scope: CoroutineScope
+    private var scope: CoroutineScope? = null
 
     private suspend fun announceFoldAction() = withContext(Dispatchers.IO) {
         Runtime.getRuntime().exec("logcat -c")
@@ -63,15 +63,15 @@ class FoldActionSignalingService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent != null && intent.action == stopServiceAction) {
             stopSelf()
-            return START_NOT_STICKY
+            START_NOT_STICKY
         }
 
         if (logcatJob == null) {
             val strategy = FoldDetectionStrategy.instanceForThisDevice
-            return if (strategy != null) {
+            return strategy?.let {
                 foldDetectionStrategy = strategy
                 scope = CoroutineScope(Job() + Dispatchers.IO)
-                logcatJob = scope.launch { announceFoldAction() }
+                logcatJob = scope?.launch { announceFoldAction() }
                 startForeground(
                     notificationId,
                     ScrunchApplication.instance.notificationManager.generateNotification(
@@ -79,10 +79,7 @@ class FoldActionSignalingService : Service() {
                     )
                 )
                 START_STICKY
-            } else {
-                Log.d("Scrunch", "Could not detect model")
-                START_NOT_STICKY
-            }
+            } ?: START_NOT_STICKY
         } else {
             Log.d("Scrunch", "Service already running")
             return START_NOT_STICKY
@@ -94,12 +91,20 @@ class FoldActionSignalingService : Service() {
     }
 
     override fun onDestroy() {
-        scope.cancel()
+        scope?.cancel()
         logcatJob?.cancel("Normal stop")
         logcatJob = null
     }
 
     companion object {
         const val stopServiceAction = "StopFoldServiceAction"
+
+        fun getServiceIntent(start: Boolean): Intent {
+            val i = Intent(ScrunchApplication.instance, FoldActionSignalingService::class.java)
+            if (!start) {
+                i.action = FoldActionSignalingService.stopServiceAction
+            }
+            return i
+        }
     }
 }

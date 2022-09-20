@@ -3,10 +3,13 @@ package com.denytheflowerpot.scrunch.activities
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Button
 import android.widget.SeekBar
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import com.denytheflowerpot.scrunch.BuildConfig
+import com.denytheflowerpot.scrunch.ScrunchApplication
 import com.denytheflowerpot.scrunch.databinding.ActivityMainBinding
 import com.denytheflowerpot.scrunch.fragments.PermissionTutorialDialogFragment
 import com.denytheflowerpot.scrunch.services.FoldActionSignalingService

@@ -11,6 +11,7 @@ import androidx.lifecycle.MutableLiveData
 import com.denytheflowerpot.scrunch.ScrunchApplication
 import com.denytheflowerpot.scrunch.managers.SettingsManager
 import com.denytheflowerpot.scrunch.managers.SoundPlaybackManager
+import com.denytheflowerpot.scrunch.services.FoldActionSignalingService
 
 class MainViewModel(app: Application) : AndroidViewModel(app) {
     private val foldSoundURL: MutableLiveData<Uri?> by lazy {
@@ -72,7 +73,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
             serviceStarted.value = started
             settingsManager.serviceStarted = started
             val app = getApplication<ScrunchApplication>()
-            app.startForegroundService(app.getServiceIntent(started))
+            app.startForegroundService(FoldActionSignalingService.getServiceIntent(started))
         }
     }
 

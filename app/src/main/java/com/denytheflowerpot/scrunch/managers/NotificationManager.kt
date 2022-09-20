@@ -32,30 +32,13 @@ class NotificationManager(private val context: Context) {
     }
 
     fun generateNotification(stopAction: String): Notification? {
-        (context as? ScrunchApplication)?.getServiceIntent(false)?.let {
-            val informMainActivityIntent =
-                Intent(context, MainActivity::class.java).putExtra(stopAction, true)
-            val stopServicePendingIntent = PendingIntent.getActivity(
-                context,
-                0,
-                informMainActivityIntent,
-                FLAG_IMMUTABLE or FLAG_UPDATE_CURRENT
-            )
-            return NotificationCompat.Builder(context, channel.id)
-                .setContentTitle(context.getText(R.string.notif_title))
-                .setStyle(
-                    NotificationCompat.BigTextStyle()
-                        .bigText(context.getText(R.string.notif_content))
-                )
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
-                .addAction(
-                    NotificationCompat.Action.Builder(
-                        R.drawable.stop,
-                        context.getText(R.string.btn_stop),
-                        stopServicePendingIntent
-                    ).build()
-                )
-                .build()
-        } ?: return null
+        val informMainActivityIntent = Intent(context, MainActivity::class.java).putExtra(stopAction, true)
+        val stopServicePendingIntent = PendingIntent.getActivity(context, 0, informMainActivityIntent, FLAG_IMMUTABLE or FLAG_UPDATE_CURRENT)
+        return NotificationCompat.Builder(context, channel.id)
+            .setContentTitle(context.getText(R.string.notif_title))
+            .setStyle(NotificationCompat.BigTextStyle().bigText(context.getText(R.string.notif_content)))
+            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .addAction(NotificationCompat.Action.Builder(R.drawable.stop, context.getText(R.string.btn_stop), stopServicePendingIntent).build())
+            .build()
     }
 }
