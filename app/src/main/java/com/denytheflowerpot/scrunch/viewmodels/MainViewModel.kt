@@ -68,7 +68,7 @@ class MainViewModel(app: Application): AndroidViewModel(app) {
             serviceStarted.value = started
             settingsManager.serviceStarted = started
             val app = getApplication<ScrunchApplication>()
-            app.startForegroundService(app.getServiceIntent(started))
+            app.startForegroundService(FoldActionSignalingService.getServiceIntent(started))
         }
     }
 

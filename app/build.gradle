@@ -4,14 +4,14 @@ plugins {
 }
 
 android {
-    compileSdk 31
+    compileSdk 33
 
     defaultConfig {
         applicationId "com.denytheflowerpot.scrunch"
         minSdk 28
-        targetSdk 31
-        versionCode 2
-        versionName "0.2"
+        targetSdk 33
+        versionCode 3
+        versionName "0.3"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -19,7 +19,7 @@ android {
     }
 
     buildFeatures {
-        viewBinding = true
+        viewBinding true
     }
 
     buildTypes {
@@ -40,15 +40,14 @@ android {
 
 dependencies {
 
-    implementation 'com.google.android.material:material:1.4.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.2'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.1'
-    implementation 'androidx.core:core-ktx:1.7.0'
+    implementation 'com.google.android.material:material:1.6.1'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.1'
+    implementation 'androidx.core:core-ktx:1.9.0'
     implementation "androidx.lifecycle:lifecycle-extensions:2.2.0"
-    implementation 'androidx.activity:activity-ktx:1.4.0'
-    implementation "androidx.fragment:fragment-ktx:1.4.0"
-    implementation 'org.lsposed.hiddenapibypass:hiddenapibypass:4.2'
-
+    implementation 'androidx.activity:activity-ktx:1.5.1'
+    implementation "androidx.fragment:fragment-ktx:1.5.2"
+	implementation 'org.lsposed.hiddenapibypass:hiddenapibypass:4.2'
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'

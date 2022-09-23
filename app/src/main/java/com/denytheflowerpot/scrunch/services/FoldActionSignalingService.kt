@@ -16,7 +16,7 @@ class FoldActionSignalingService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent != null && intent.action == stopServiceAction) {
             stopSelf()
-            return START_NOT_STICKY
+            START_NOT_STICKY
         }
 
         return START_STICKY
