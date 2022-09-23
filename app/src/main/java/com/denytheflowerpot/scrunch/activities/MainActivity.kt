@@ -3,12 +3,15 @@ package com.denytheflowerpot.scrunch.activities
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.Button
 import android.widget.SeekBar
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.denytheflowerpot.scrunch.BuildConfig
+import com.denytheflowerpot.scrunch.R
 import com.denytheflowerpot.scrunch.ScrunchApplication
 import com.denytheflowerpot.scrunch.databinding.ActivityMainBinding
 import com.denytheflowerpot.scrunch.fragments.PermissionTutorialDialogFragment
@@ -85,6 +88,13 @@ class MainActivity : AppCompatActivity() {
         viewModel.volume.observe(this) {
             binding.volumeSeekBar.progress = (it * 100).toInt()
         }
+
+        if (BuildConfig.DEBUG) {
+            val button = Button(this)
+            button.text = "PLAY"
+            button.setOnClickListener { ScrunchApplication.instance.soundPlaybackManager.playFoldSound() }
+            view.addView(button)
+        }
     }
 
     override fun onNewIntent(i: Intent?) {
@@ -110,6 +120,21 @@ class MainActivity : AppCompatActivity() {
                     permissionTutorialDialogTag
                 )
             }
+        }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_main, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.menu_main_settings -> {
+                startActivity(Intent(this, AdvancedSettingsActivity::class.java))
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
         }
     }
 

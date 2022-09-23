@@ -2,6 +2,7 @@ package com.denytheflowerpot.scrunch.managers
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.util.Log
 import com.denytheflowerpot.scrunch.ScrunchApplication
 import com.denytheflowerpot.scrunch.helpers.Constants
 
@@ -25,12 +26,14 @@ class SettingsManager(private val context: Context) {
         ScrunchApplication.instance.soundPlaybackManager
     }
 
-    init {
-        prefs.registerOnSharedPreferenceChangeListener { _, key ->
-            if (key == Keys.StreamType) {
-                soundPlaybackManager.initializeSoundPool()
-            }
+    private val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+        if (key == Keys.StreamType) {
+            soundPlaybackManager.initializeSoundPool()
         }
+    }
+
+    init {
+        prefs.registerOnSharedPreferenceChangeListener(listener)
     }
 
     var unfoldSoundURL: String
@@ -63,6 +66,6 @@ class SettingsManager(private val context: Context) {
 
     val streamType: SoundPlaybackManager.StreamType
         get() = SoundPlaybackManager.StreamType.valueOf(
-            prefs.getString(Keys.StreamType, "system") ?: "system"
+            (prefs.getString(Keys.StreamType, "system") ?: "system").uppercase()
         )
 }
