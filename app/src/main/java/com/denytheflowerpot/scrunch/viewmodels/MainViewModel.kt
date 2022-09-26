@@ -10,6 +10,7 @@ import com.denytheflowerpot.scrunch.ScrunchApplication
 import com.denytheflowerpot.scrunch.managers.SettingsManager
 import com.denytheflowerpot.scrunch.managers.SoundPlaybackManager
 import com.denytheflowerpot.scrunch.util.PermissionUtils
+import com.denytheflowerpot.scrunch.services.FoldActionSignalingService
 
 class MainViewModel(app: Application): AndroidViewModel(app) {
     private val foldSoundURL: MutableLiveData<Uri?> by lazy {

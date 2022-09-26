@@ -31,6 +31,7 @@ class FoldActionSignalingService : Service() {
                 stopServiceAction
             )
         )
+
         FoldDetectionStrategy.instanceForThisDevice?.create(this) { state ->
             if (state == DEVICE_STATE_HALF_OPEN) {
                 //Currently ignoring this state.
@@ -38,8 +39,10 @@ class FoldActionSignalingService : Service() {
             }
 
             if (state != currentFoldState) {
-                val soundPlaybackManager = ScrunchApplication.instance.soundPlaybackManager
-                if (state == DEVICE_STATE_CLOSED) soundPlaybackManager.playFoldSound() else soundPlaybackManager.playUnfoldSound()
+                if (currentFoldState != null) {
+                    val soundPlaybackManager = ScrunchApplication.instance.soundPlaybackManager
+                    if (state == DEVICE_STATE_CLOSED) soundPlaybackManager.playFoldSound() else soundPlaybackManager.playUnfoldSound()
+                }
                 currentFoldState = state
             }
         }
@@ -59,5 +62,13 @@ class FoldActionSignalingService : Service() {
         const val DEVICE_STATE_CLOSED = 1
         const val DEVICE_STATE_FULLY_OPEN = 3
         const val DEVICE_STATE_HALF_OPEN = 2
+
+        fun getServiceIntent(start: Boolean): Intent {
+            val i = Intent(ScrunchApplication.instance, FoldActionSignalingService::class.java)
+            if (!start) {
+                i.action = stopServiceAction
+            }
+            return i
+        }
     }
 }

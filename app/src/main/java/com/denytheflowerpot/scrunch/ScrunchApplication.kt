@@ -35,7 +35,7 @@ class ScrunchApplication: Application() {
 
     fun startServiceIfNeeded() {
         if (settingsManager.serviceStarted && !PermissionUtils.needsToGrantReadLogs(this)) {
-            startForegroundService(getServiceIntent(true))
+            startForegroundService(FoldActionSignalingService.getServiceIntent(true))
         }
     }
 

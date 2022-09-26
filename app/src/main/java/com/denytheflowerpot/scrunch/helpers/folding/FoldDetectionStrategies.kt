@@ -3,6 +3,7 @@ package com.denytheflowerpot.scrunch.helpers.folding
 import android.annotation.SuppressLint
 import android.content.Context
 import android.hardware.devicestate.DeviceStateManager
+import android.hardware.devicestate.DeviceStateRequest
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -50,14 +51,10 @@ class Android12DetectionStrategy : FoldDetectionStrategy {
     private var stateCallback: DeviceStateManager.DeviceStateCallback? = null
 
     override fun create(context: Context, callback: (Int) -> Unit) {
-        var array = context.resources.getStringArray(com.android.internal.R.array.config_device_state_postures)
+        var array = context.resources.getStringArray(
+            context.resources.getIdentifier("config_device_state_postures", "array", "android")
+        )
         val stateMapping = hashMapOf<Int, Int>()
-
-        if (array.isNullOrEmpty()) {
-            array = context.resources.getStringArray(
-                context.resources.getIdentifier("config_device_state_postures", "array", "android")
-            )
-        }
 
         stateMapping.putAll(array.map { it.split(":").run { this[0].toInt() to this[1].toInt() } })
 
